@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "libclamav-py"
+version = "0.1.0"
+description = ""
+authors = ["tkasuz <63289889+tkasuz@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pydantic = "^2.10.3"
+pyyaml = "^6.0.2"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.4"
+pytest-mock = "^3.14.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

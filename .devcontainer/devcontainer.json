@@ -1,0 +1,8 @@
+{
+	"name": "pyclamav",
+	"build": {
+        "dockerfile": "../Dockerfile",
+		"target": "development"
+	},
+	"postCreateCommand": "bash scripts/post_create.sh"
+}
