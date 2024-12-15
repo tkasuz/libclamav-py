@@ -23,6 +23,6 @@ jobs:
           context: .
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          push: fasle
+          push: false
       - name: test
         run: docker compose up
