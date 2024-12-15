@@ -22,10 +22,10 @@ Here is a basic example of how to use libclamav-py:
 from libclamav_py.clamav import Client
 
 # Initialize the libclamav engine with the default setting
-client = Client(clamd_conf_path="/lib/libclamav.so")
+client = Client(libclamav_path="/lib/libclamav.so")
 
 # Or libclamav client can be initialized from clamd.conf
-client = Client.from_clamd_conf(clamd_conf_path="/etc/clamd.conf", clamd_conf_path="/lib/libclamav.so")
+client = Client.from_clamd_conf(clamd_conf_path="/etc/clamd.conf", libclamav_path="/lib/libclamav.so")
 ```
 
 ```python
