@@ -3,7 +3,7 @@ import logging
 from pathlib import Path
 
 from .config.database import DatabaseConfig
-from .config.engine import EngineConfig
+from .config.engine import EngineConfig, EngineField
 from .config.scan import (
     GeneralConfig,
     HeuristicConfig,
@@ -53,15 +53,35 @@ class Client:
     def set_engine_conf(self, config: EngineConfig):
         try:
             for key, value in config.model_dump(by_alias=True).items():
+                key = EngineField[key]
                 if isinstance(value, int):
-                    self.client.cl_engine_set_num(self.engine, key, value)
+                    self.client.cl_engine_set_num(
+                        self.engine, key, ctypes.c_ulonglong(value)
+                    )
                 elif isinstance(value, str):
-                    self.client.cl_engine_set_str(self.engine, key, value)
+                    self.client.cl_engine_set_str(self.engine, key, str(value).encode())
                 else:
                     raise ValueError(f"Invalid value type: {type(value)}")
         except Exception as e:
             self.logger.exception(f"Failed to set engine configuration: {config}")
             raise e
+
+    def get_engine_conf(self) -> EngineConfig:
+        config = {}
+        for key, value in self.engine_config.model_dump(by_alias=True).items():
+            err = ctypes.c_uint()
+            if isinstance(value, int):
+                result = self.client.cl_engine_get_num(
+                    self.engine, EngineField[key], ctypes.byref(err)
+                )
+            elif isinstance(value, str):
+                result = self.client.cl_engine_get_str(
+                    self.engine, EngineField[key], ctypes.byref(err)
+                )
+            if err.value not in [0, 3]:
+                raise RuntimeError(f"Failed to get engine configuration: {key}")
+            config[key] = result
+        return EngineConfig.model_validate(config)
 
     def set_database_conf(self, config: DatabaseConfig):
         self.database_config = config

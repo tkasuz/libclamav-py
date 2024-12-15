@@ -4,6 +4,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from libclamav_py.clamav import Client
+from libclamav_py.config.engine import EngineConfig
 
 
 @pytest.fixture
@@ -23,6 +24,12 @@ class TestClient:
 
         result = client.scan_file("etc/no_virus.txt")
         assert result is None
+
+    def test_set_engine_conf(self, client):
+        client.set_engine_conf(EngineConfig(max_scan_size=100 * 1024 * 1024))
+
+        config = client.get_engine_conf()
+        assert config.max_scan_size == 100 * 1024 * 1024
 
 
 def test_from_clamd_conf(mocker: MockerFixture):
