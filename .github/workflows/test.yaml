@@ -20,9 +20,11 @@ jobs:
       - uses: docker/setup-buildx-action@v3
       - uses: docker/build-push-action@v6
         with:
+          tags: libclamav-py:latest
           context: .
           cache-from: type=gha
           cache-to: type=gha,mode=max
           push: false
+          load: true
       - name: test
         run: docker compose up --exit-code-from test
