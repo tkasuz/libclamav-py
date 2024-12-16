@@ -25,4 +25,4 @@ jobs:
           cache-to: type=gha,mode=max
           push: false
       - name: test
-        run: docker compose up
+        run: docker compose up --exit-code-from test
