@@ -29,7 +29,7 @@ RUN mkdir build \
 WORKDIR /layer
 RUN zip -r9 clamav-layer.zip .
 
-FROM public.ecr.aws/lambda/python:3.13 AS development
+FROM public.ecr.aws/lambda/python:3.12 AS development
 COPY --from=clamav /layer/clamav-layer.zip /opt/
 RUN dnf install -y zip \
 && unzip /opt/clamav-layer.zip -d /opt/ \

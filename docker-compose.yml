@@ -1,5 +1,6 @@
 services:
   test:
+    image: libclamav-py
     build:
       context: .
       dockerfile: Dockerfile
