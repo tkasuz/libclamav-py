@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "libclamav-py"
-version = "0.1.2"
+version = "0.2.0"
 description = "libclamav-py is a Python library that provides a seamless interface to the ClamAV antivirus engine via libClamAV. This wrapper directly calls the C API of Libclamav"
 authors = ["tkasuz <63289889+tkasuz@users.noreply.github.com>"]
 readme = "README.md"
