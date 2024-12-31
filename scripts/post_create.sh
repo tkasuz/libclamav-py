@@ -3,4 +3,4 @@
 mkdir -p /tmp/clamav
 freshclam --config-file ./etc/freshclam.conf
 poetry install
-poetry run pytest -v
+poetry run pytest -v --log-cli-level=DEBUG

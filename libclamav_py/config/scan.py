@@ -7,11 +7,17 @@ from .base import ConfigBase
 
 
 class GeneralConfig(ConfigBase):
-    all_match_scan: Optional[bool] = Field(default=True)
-    heuristic_alerts: Optional[bool] = Field(default=True)
-    heuristic_scan_precedence: Optional[bool] = Field(default=False)
-    generate_metadata_json: Optional[bool] = Field(default=False)
-    json_store_html_urls: Optional[bool] = Field(default=True)
+    all_match_scan: Optional[bool] = Field(default=True, alias="AllowAllMatchScan")
+    heuristic_alerts: Optional[bool] = Field(default=True, alias="HeuristicAlerts")
+    heuristic_scan_precedence: Optional[bool] = Field(
+        default=False, alias="HeuristicScanPrecedence"
+    )
+    generate_metadata_json: Optional[bool] = Field(
+        default=False, alias="GenerateMetadataJson"
+    )
+    json_store_html_urls: Optional[bool] = Field(
+        default=True, alias="JsonStoreHTMLUrls"
+    )
 
     def _to_bit_flag(self) -> ctypes.c_uint32:
         return ctypes.c_uint32(
@@ -24,19 +30,21 @@ class GeneralConfig(ConfigBase):
 
 
 class ParseConfig(ConfigBase):
-    scan_archive: Optional[bool] = Field(default=True)
-    scan_elf: Optional[bool] = Field(default=True)
-    scan_pdf: Optional[bool] = Field(default=True)
-    scan_swf: Optional[bool] = Field(default=True)
-    scan_hwp3: Optional[bool] = Field(default=True)
-    scan_xmldocs: Optional[bool] = Field(default=True)
-    scan_mail: Optional[bool] = Field(default=True)
-    scan_ole2: Optional[bool] = Field(default=True)
-    scan_html: Optional[bool] = Field(default=True)
-    scan_pe: Optional[bool] = Field(default=True)
-    scan_one_note: Optional[bool] = Field(default=True)
-    scan_image: Optional[bool] = Field(default=True)
-    scan_image_fuzzy_hash: Optional[bool] = Field(default=True)
+    scan_archive: Optional[bool] = Field(default=True, alias="ScanArchive")
+    scan_elf: Optional[bool] = Field(default=True, alias="ScanELF")
+    scan_pdf: Optional[bool] = Field(default=True, alias="ScanPDF")
+    scan_swf: Optional[bool] = Field(default=True, alias="ScanSWF")
+    scan_hwp3: Optional[bool] = Field(default=True, alias="ScanHWP3")
+    scan_xmldocs: Optional[bool] = Field(default=True, alias="ScanXMLDOCS")
+    scan_mail: Optional[bool] = Field(default=True, alias="ScanMail")
+    scan_ole2: Optional[bool] = Field(default=True, alias="ScanOLE2")
+    scan_html: Optional[bool] = Field(default=True, alias="ScanHTML")
+    scan_pe: Optional[bool] = Field(default=True, alias="ScanPE")
+    scan_one_note: Optional[bool] = Field(default=True, alias="ScanOneNote")
+    scan_image: Optional[bool] = Field(default=True, alias="ScanImage")
+    scan_image_fuzzy_hash: Optional[bool] = Field(
+        default=True, alias="ScanImageFuzzyHash"
+    )
 
     def _to_bit_flag(self) -> ctypes.c_uint32:
         return ctypes.c_uint32(
@@ -57,33 +65,49 @@ class ParseConfig(ConfigBase):
 
 
 class HeuristicConfig(ConfigBase):
-    alert_broken: Optional[bool] = Field(default=False)
+    alert_broken: Optional[bool] = Field(default=False, alias="AlertBrokenExecutables")
 
-    alert_exceeds_max: Optional[bool] = Field(default=False)
+    alert_exceeds_max: Optional[bool] = Field(default=False, alias="AlertExceedsMax")
 
-    alert_phishing_ssl: Optional[bool] = Field(default=False)
+    alert_phishing_ssl: Optional[bool] = Field(
+        default=False, alias="AlertPhishingSSLMismatch"
+    )
 
-    alert_phishing_cloak: Optional[bool] = Field(default=False)
+    alert_phishing_cloak: Optional[bool] = Field(
+        default=False, alias="AlertPhishingCloak"
+    )
 
-    alert_macros: Optional[bool] = Field(default=False)
+    alert_macros: Optional[bool] = Field(default=False, alias="AlertOLE2Macros")
 
-    alert_encrypted: Optional[bool] = Field(default=False)
+    alert_encrypted: Optional[bool] = Field(default=False, alias="AlertEncrypted")
 
-    alert_encrypted_archive: Optional[bool] = Field(default=False)
+    alert_encrypted_archive: Optional[bool] = Field(
+        default=False, alias="AlertEncryptedArchive"
+    )
 
-    alert_encrypted_doc: Optional[bool] = Field(default=False)
+    alert_encrypted_doc: Optional[bool] = Field(
+        default=False, alias="AlertEncryptedDoc"
+    )
 
-    alert_partition_intersection: Optional[bool] = Field(default=False)
+    alert_partition_intersection: Optional[bool] = Field(
+        default=False, alias="AlertPartitionIntersection"
+    )
 
-    structured_data_detection: Optional[bool] = Field(default=False)
+    structured_data_detection: Optional[bool] = Field(
+        default=False, alias="StructuredDataDetection"
+    )
 
-    structured_ssn_format_normal: Optional[bool] = Field(default=False)
+    structured_ssn_format_normal: Optional[bool] = Field(
+        default=False, alias="StructuredSSNFormatNormal"
+    )
 
-    structured_ssn_format_stripped: Optional[bool] = Field(default=False)
+    structured_ssn_format_stripped: Optional[bool] = Field(
+        default=False, alias="StructuredSSNFormatStripped"
+    )
 
-    structured_cc_only: Optional[bool] = Field(default=False)
+    structured_cc_only: Optional[bool] = Field(default=False, alias="StructuredCCOnly")
 
-    alert_broken_media: Optional[bool] = Field(default=False)
+    alert_broken_media: Optional[bool] = Field(default=False, alias="AlertBrokenMedia")
 
     def _to_bit_flag(self) -> ctypes.c_uint32:
         if self.alert_encrypted:
@@ -107,7 +131,9 @@ class HeuristicConfig(ConfigBase):
 
 
 class MailConfig(ConfigBase):
-    scan_partial_messages: Optional[bool] = Field(default=False)
+    scan_partial_messages: Optional[bool] = Field(
+        default=False, alias="ScanPartialMessages"
+    )
 
     def _to_bit_flag(self) -> ctypes.c_uint32:
         return ctypes.c_uint32(0x1 if self.scan_partial_messages else 0)

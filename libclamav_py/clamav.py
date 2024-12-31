@@ -2,8 +2,10 @@ import ctypes
 import logging
 from pathlib import Path
 
+from pydantic import ByteSize
+
 from .config.database import DatabaseConfig
-from .config.engine import EngineConfig, EngineField
+from .config.engine import EngineConfig, EngineField, PUAConfig
 from .config.scan import (
     GeneralConfig,
     HeuristicConfig,
@@ -50,11 +52,24 @@ class Client:
         if hasattr(self, "client"):
             self.client.cl_engine_free(self.engine)
 
+    def set_pua_conf(self, config: PUAConfig):
+        if config.enabled:
+            try:
+                pua_categories = config.to_string()
+                self.client.cl_engine_set_str(
+                    self.engine,
+                    EngineField["pua_categories"],
+                    str(pua_categories).encode(),
+                )
+            except Exception as e:
+                raise e
+
     def set_engine_conf(self, config: EngineConfig):
         try:
-            for key, value in config.model_dump(by_alias=True).items():
+            for key, value in config.model_dump(exclude_unset=True).items():
                 key = EngineField[key]
-                if isinstance(value, int):
+                if isinstance(value, int) or isinstance(value, ByteSize):
+                    self.logger.debug(f"Set {key}: {value}")
                     self.client.cl_engine_set_num(
                         self.engine, key, ctypes.c_ulonglong(value)
                     )
@@ -68,12 +83,13 @@ class Client:
 
     def get_engine_conf(self) -> EngineConfig:
         config = {}
-        for key, value in self.engine_config.model_dump(by_alias=True).items():
+        for key, value in self.engine_config.model_dump().items():
             err = ctypes.c_uint()
-            if isinstance(value, int):
+            if isinstance(value, int) or isinstance(value, ByteSize):
                 result = self.client.cl_engine_get_num(
                     self.engine, EngineField[key], ctypes.byref(err)
                 )
+                self.logger.debug(f"{key}: {result}")
             elif isinstance(value, str):
                 result = self.client.cl_engine_get_str(
                     self.engine, EngineField[key], ctypes.byref(err)
@@ -99,16 +115,27 @@ class Client:
     ):
         try:
             config_dict = {}
+            pua_config = PUAConfig()
             with Path(clamd_conf_path).open() as f:
                 for line in f:
                     line = line.strip()
                     if not line or line.startswith("#"):
                         continue
                     key, value = line.split(None, 1)
+
+                    if key == "ExcludePUA":
+                        pua_config.excludes.append(value)
+                    elif key == "IncludePUA":
+                        pua_config.includes.append(value)
+
                     if value in ("yes", "true", "1"):
                         value = True
                     elif value in ("no", "false", "0"):
                         value = False
+
+                    if key == "DetectPUA" and isinstance(value, bool):
+                        pua_config.enabled = value
+
                     config_dict[key] = value
             engine_config = EngineConfig.model_validate(config_dict)
             database_config = DatabaseConfig.model_validate(config_dict)
@@ -123,6 +150,7 @@ class Client:
                 logger=logger,
             )
             client.set_engine_conf(engine_config)
+            client.set_pua_conf(pua_config)
             client.set_database_conf(database_config)
             client.set_scan_conf(scan_config)
             return client
