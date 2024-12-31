@@ -1,7 +1,13 @@
 from enum import IntEnum
-from typing import Optional
+from typing import Literal, Optional
 
-from pydantic import BaseModel, ByteSize, Field, field_serializer, field_validator
+from pydantic import (
+    BaseModel,
+    ByteSize,
+    Field,
+    field_serializer,
+    field_validator,
+)
 
 import libclamav_py.utils.constant as constant
 
@@ -17,9 +23,10 @@ class EngineField(IntEnum):
     structured_min_ssn_count = 5  # CL_ENGINE_MIN_SSN_COUNT
     pua_categories = 6  # CL_ENGINE_PUA_CATEGORIES
 
-    # TODO
     temporary_directory = 13  # CL_ENGINE_TMPDIR
     leave_temporary_files = 14  # CL_ENGINE_KEEPTMP
+    bytecode_security = 15  # CL_ENGINE_BYTECODE_SECURITY
+    bytecode_timeout = 16  # CL_ENGINE_BYTECODE_TIMEOUT
 
     max_embedded_pe = 18  # CL_ENGINE_MAX_EMBEDDEDPE
     max_html_normalize = 19  # CL_ENGINE_MAX_HTMLNORMALIZE
@@ -81,6 +88,11 @@ class EngineConfig(ConfigBase):
         default=False, alias="LeaveTemporaryFiles"
     )
 
+    bytecode_security: Optional[Literal["TrustSigned", "Paranoid", "None"]] = Field(
+        default="TrustSigned", alias="BytecodeSecurity"
+    )
+    bytecode_timeout: Optional[int] = Field(default=10000, alias="BytecodeTimeout")
+
     max_embedded_pe: Optional[ByteSize] = Field(
         default=ByteSize(40 * constant.MB), alias="MaxEmbeddedPE"
     )
@@ -141,3 +153,29 @@ class EngineConfig(ConfigBase):
     @classmethod
     def validate_bool(cls, value: int) -> bool:
         return value == 1
+
+    @field_serializer("bytecode_security")
+    def serialize_bytecode_security(
+        self, v: Literal["TrustSigned", "Paranoid", "None"]
+    ) -> int:
+        if v == "TrustSigned":
+            return 1
+        elif v == "Paranoid":
+            return 2
+        elif v == "None":
+            return 0
+
+    @field_validator(
+        "bytecode_security",
+        mode="before",
+    )
+    @classmethod
+    def validate_bytecode_security(cls, v: int | str) -> str:
+        if isinstance(v, int):
+            if v == 0:
+                return "None"
+            elif v == 2:
+                return "Paranoid"
+            else:
+                return "TrustSigned"
+        return v

@@ -27,10 +27,13 @@ class TestClient:
         assert result is None
 
     def test_set_engine_conf(self, client):
-        client.set_engine_conf(EngineConfig(MaxScanSize=ByteSize(100 * MB)))
+        client.set_engine_conf(
+            EngineConfig(BytecodeSecurity="Paranoid", MaxScanSize=ByteSize(100 * MB)),
+        )
 
         config = client.get_engine_conf()
         assert config.max_scan_size == 100 * MB
+        assert config.bytecode_security == "Paranoid"
 
     def test_set_pua_conf(self, client):
         client.set_pua_conf(PUAConfig(enabled=True, excludes=["NetTool", "PWTool"]))
