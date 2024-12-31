@@ -9,9 +9,9 @@ def libclamav_path() -> str:
 @pytest.fixture
 def database_config() -> dict:
     return {
-        "phishing_signatures": True,
-        "phishing_scan_urls": True,
-        "detect_pua": True,
-        "official_database_only": True,
-        "bytecode": True,
+        "PhishingSignatures": True,
+        "PhishingScanUrls": True,
+        "DetectPUA": True,
+        "OfficialDatabaseOnly": True,
+        "Bytecode": True,
     }

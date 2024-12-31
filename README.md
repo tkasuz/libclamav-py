@@ -1,5 +1,9 @@
 # libclamav-py
 
+[![test](https://github.com/tkasuz/libclamav-py/actions/workflows/test.yaml/badge.svg)](https://github.com/tkasuz/libclamav-py/actions/workflows/test.yaml)
+![PyPI](https://img.shields.io/pypi/v/PACKAGE?label=pypi%20libclamav-py)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/libclamav-py)
+
 libclamav-py is a Python wrapper for the ClamAV library, providing an interface to ClamAV's virus scanning capabilities.
 
 ## Features

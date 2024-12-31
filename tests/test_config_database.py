@@ -15,11 +15,11 @@ class TestDatabaseConfig:
     @pytest.mark.parametrize(
         "config, hex",
         [
-            (DatabaseConfig(phishing_scan_urls=True), 8202),
-            (DatabaseConfig(phishing_signatures=True), 8202),
-            (DatabaseConfig(detect_pua=True), 8218),
-            (DatabaseConfig(official_database_only=True), 12298),
-            (DatabaseConfig(bytecode=True), 8202),
+            (DatabaseConfig(PhishingScanUrls=True), 8202),
+            (DatabaseConfig(PhishingSignatures=True), 8202),
+            (DatabaseConfig(DetectPUA=True), 8218),
+            (DatabaseConfig(OfficialDatabaseOnly=True), 12298),
+            (DatabaseConfig(Bytecode=True), 8202),
         ],
     )
     def test_to_big_flag(self, config, hex):

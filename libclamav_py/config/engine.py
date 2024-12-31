@@ -1,7 +1,7 @@
 from enum import IntEnum
 from typing import Optional
 
-from pydantic import Field, field_serializer, field_validator
+from pydantic import BaseModel, ByteSize, Field, field_serializer, field_validator
 
 import libclamav_py.utils.constant as constant
 
@@ -15,6 +15,12 @@ class EngineField(IntEnum):
     max_files = 3  # CL_ENGINE_MAX_FILES
     structured_min_credit_card_count = 4  # CL_ENGINE_STRUCTURED_SSN_COUNT
     structured_min_ssn_count = 5  # CL_ENGINE_MIN_SSN_COUNT
+    pua_categories = 6  # CL_ENGINE_PUA_CATEGORIES
+
+    # TODO
+    temporary_directory = 13  # CL_ENGINE_TMPDIR
+    leave_temporary_files = 14  # CL_ENGINE_KEEPTMP
+
     max_embedded_pe = 18  # CL_ENGINE_MAX_EMBEDDEDPE
     max_html_normalize = 19  # CL_ENGINE_MAX_HTMLNORMALIZE
     max_html_notags = 20  # CL_ENGINE_MAX_HTMLNOTAGS
@@ -33,61 +39,104 @@ class EngineField(IntEnum):
     disable_cert_check = 35  # CL_ENGINE_DISABLE_CERT_CHECK
 
 
+class PUAConfig(BaseModel):
+    enabled: bool = False
+    excludes: list[str] = []
+    includes: list[str] = []
+
+    def to_string(self) -> str | None:
+        if self.enabled:
+            if self.excludes:
+                return ".".join(self.excludes) + "."
+            if self.includes:
+                return ".".join(self.includes) + "."
+
+
 class EngineConfig(ConfigBase):
-    max_scan_size: Optional[int] = Field(
-        default=400 * constant.MB,
+    max_scan_size: Optional[ByteSize] = Field(
+        default=ByteSize(400 * constant.MB), alias="MaxScanSize"
     )
 
-    max_file_size: Optional[int] = Field(
-        default=100 * constant.MB,
+    max_file_size: Optional[ByteSize] = Field(
+        default=ByteSize(100 * constant.MB), alias="MaxFileSize"
     )
 
-    max_recursion: Optional[int] = Field(default=100)
+    max_recursion: Optional[int] = Field(default=100, alias="MaxRecursion")
 
-    max_files: Optional[int] = Field(default=10000)
+    max_files: Optional[int] = Field(default=10000, alias="MaxFiles")
 
-    structured_min_credit_card_count: Optional[int] = Field(default=3)
+    structured_min_credit_card_count: Optional[int] = Field(
+        default=3, alias="StructuredMinCreditCardCount"
+    )
 
-    structured_min_ssn_count: Optional[int] = Field(default=3)
+    structured_min_ssn_count: Optional[int] = Field(
+        default=3, alias="StructuredMinSSNCount"
+    )
 
-    max_embedded_pe: Optional[int] = Field(default=40 * constant.MB)
+    temporary_directory: Optional[str] = Field(
+        default="/tmp", alias="TemporaryDirectory"
+    )
 
-    max_html_normalize: Optional[int] = Field(default=4 * constant.MB)
+    leave_temporary_files: Optional[bool] = Field(
+        default=False, alias="LeaveTemporaryFiles"
+    )
 
-    max_html_notags: Optional[int] = Field(default=8 * constant.MB)
+    max_embedded_pe: Optional[ByteSize] = Field(
+        default=ByteSize(40 * constant.MB), alias="MaxEmbeddedPE"
+    )
 
-    max_script_normalize: Optional[int] = Field(default=20 * constant.MB)
+    max_html_normalize: Optional[ByteSize] = Field(
+        default=ByteSize(4 * constant.MB), alias="MaxHTMLNormalize"
+    )
 
-    max_zip_type_rcg: Optional[int] = Field(default=1 * constant.MB)
+    max_html_notags: Optional[ByteSize] = Field(
+        default=ByteSize(8 * constant.MB), alias="MaxHTMLNoTags"
+    )
 
-    force_to_disk: Optional[bool] = Field(default=False)
+    max_script_normalize: Optional[ByteSize] = Field(
+        default=ByteSize(20 * constant.MB), alias="MaxScriptNormalize"
+    )
 
-    cache_size: Optional[int] = Field(default=65536)
+    max_zip_type_rcg: Optional[ByteSize] = Field(
+        default=ByteSize(1 * constant.MB), alias="MaxZipTypeRcg"
+    )
 
-    disable_cache: Optional[bool] = Field(default=False)
+    force_to_disk: Optional[bool] = Field(default=False, alias="ForceToDisk")
 
-    max_partitions: Optional[int] = Field(default=50)
+    cache_size: Optional[int] = Field(default=65536, alias="CacheSize")
 
-    max_icons_pe: Optional[int] = Field(default=100)
+    disable_cache: Optional[bool] = Field(default=False, alias="DisableCache")
 
-    max_rech_wp3: Optional[int] = Field(default=16)
+    max_partitions: Optional[int] = Field(default=50, alias="MaxPartitions")
 
-    max_scan_time: Optional[int] = Field(default=120000)
+    max_icons_pe: Optional[int] = Field(default=100, alias="MaxIconsPE")
 
-    pcre_match_limit: Optional[int] = Field(default=100000)
+    max_rech_wp3: Optional[int] = Field(default=16, alias="MaxRecHWP3")
 
-    pcre_rec_match_limit: Optional[int] = Field(default=200)
+    max_scan_time: Optional[int] = Field(default=120000, alias="MaxScanTime")
 
-    pcre_max_file_size: Optional[int] = Field(default=400 * constant.MB)
+    pcre_match_limit: Optional[int] = Field(default=100000, alias="PCREMatchLimit")
 
-    disable_cert_check: Optional[bool] = Field(default=False)
+    pcre_rec_match_limit: Optional[int] = Field(default=200, alias="PCRERecMatchLimit")
 
-    @field_serializer("force_to_disk", "disable_cert_check", "disable_cache")
+    pcre_max_file_size: Optional[ByteSize] = Field(
+        default=ByteSize(400 * constant.MB), alias="PCREMaxFileSize"
+    )
+
+    disable_cert_check: Optional[bool] = Field(default=False, alias="DisableCertCheck")
+
+    @field_serializer(
+        "force_to_disk", "disable_cert_check", "disable_cache", "leave_temporary_files"
+    )
     def serialize_bool(self, b: bool) -> int:
         return 1 if b else 0
 
     @field_validator(
-        "force_to_disk", "disable_cert_check", "disable_cache", mode="before"
+        "force_to_disk",
+        "disable_cert_check",
+        "disable_cache",
+        "leave_temporary_files",
+        mode="before",
     )
     @classmethod
     def validate_bool(cls, value: int) -> bool:
