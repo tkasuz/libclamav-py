@@ -38,4 +38,7 @@ class TestClient:
 
 
 def test_from_clamd_conf():
-    Client.from_clamd_conf(clamd_conf_path="etc/clamd.conf")
+    client = Client.from_clamd_conf(clamd_conf_path="etc/clamd.conf")
+    config = client.get_engine_conf()
+
+    assert config.temporary_directory == "/var/tmp"

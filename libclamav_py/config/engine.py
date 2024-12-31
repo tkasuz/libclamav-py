@@ -18,10 +18,8 @@ class EngineField(IntEnum):
     pua_categories = 6  # CL_ENGINE_PUA_CATEGORIES
 
     # TODO
-    db_options = 7  # CL_ENGINE_DB_OPTIONS
-    db_version = 8  # CL_ENGINE_DB_VERSION
-    db_time = 9  # CL_ENGINE_DB_TIME
-    ac_only = 10  # CL_ENGINE_AC_ONLY
+    temporary_directory = 13  # CL_ENGINE_TMPDIR
+    leave_temporary_files = 14  # CL_ENGINE_KEEPTMP
 
     max_embedded_pe = 18  # CL_ENGINE_MAX_EMBEDDEDPE
     max_html_normalize = 19  # CL_ENGINE_MAX_HTMLNORMALIZE
@@ -75,6 +73,14 @@ class EngineConfig(ConfigBase):
         default=3, alias="StructuredMinSSNCount"
     )
 
+    temporary_directory: Optional[str] = Field(
+        default="/tmp", alias="TemporaryDirectory"
+    )
+
+    leave_temporary_files: Optional[bool] = Field(
+        default=False, alias="LeaveTemporaryFiles"
+    )
+
     max_embedded_pe: Optional[ByteSize] = Field(
         default=ByteSize(40 * constant.MB), alias="MaxEmbeddedPE"
     )
@@ -119,12 +125,18 @@ class EngineConfig(ConfigBase):
 
     disable_cert_check: Optional[bool] = Field(default=False, alias="DisableCertCheck")
 
-    @field_serializer("force_to_disk", "disable_cert_check", "disable_cache")
+    @field_serializer(
+        "force_to_disk", "disable_cert_check", "disable_cache", "leave_temporary_files"
+    )
     def serialize_bool(self, b: bool) -> int:
         return 1 if b else 0
 
     @field_validator(
-        "force_to_disk", "disable_cert_check", "disable_cache", mode="before"
+        "force_to_disk",
+        "disable_cert_check",
+        "disable_cache",
+        "leave_temporary_files",
+        mode="before",
     )
     @classmethod
     def validate_bool(cls, value: int) -> bool:

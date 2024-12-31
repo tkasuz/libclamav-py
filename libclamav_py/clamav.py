@@ -66,15 +66,16 @@ class Client:
 
     def set_engine_conf(self, config: EngineConfig):
         try:
-            for key, value in config.model_dump(exclude_unset=True).items():
+            for key, value in config.model_dump().items():
                 key = EngineField[key]
                 if isinstance(value, int) or isinstance(value, ByteSize):
-                    self.logger.debug(f"Set {key}: {value}")
                     self.client.cl_engine_set_num(
                         self.engine, key, ctypes.c_ulonglong(value)
                     )
                 elif isinstance(value, str):
-                    self.client.cl_engine_set_str(self.engine, key, str(value).encode())
+                    self.client.cl_engine_set_str(
+                        self.engine, key, ctypes.c_char_p(value.encode())
+                    )
                 else:
                     raise ValueError(f"Invalid value type: {type(value)}")
         except Exception as e:
@@ -91,6 +92,7 @@ class Client:
                 )
                 self.logger.debug(f"{key}: {result}")
             elif isinstance(value, str):
+                self.client.cl_engine_get_str.restype = ctypes.c_char_p
                 result = self.client.cl_engine_get_str(
                     self.engine, EngineField[key], ctypes.byref(err)
                 )
