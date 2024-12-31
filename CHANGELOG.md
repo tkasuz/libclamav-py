@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.0](https://github.com/tkasuz/libclamav-py/compare/v0.1.2...v0.2.0) (2024-12-31)
+
+
+### Features
+
+* Add ByteCode Config ([#14](https://github.com/tkasuz/libclamav-py/issues/14)) ([4a2cadd](https://github.com/tkasuz/libclamav-py/commit/4a2caddd15de85d96b823cb5c6a3c90efd2a0d06))
+* Add config for PUA ([#11](https://github.com/tkasuz/libclamav-py/issues/11)) ([5bbbb18](https://github.com/tkasuz/libclamav-py/commit/5bbbb189baa2b2193e9fb7180f03ad255820cd63))
+
 ## [0.1.2](https://github.com/tkasuz/libclamav-py/compare/v0.1.1...v0.1.2) (2024-12-16)
 
 
